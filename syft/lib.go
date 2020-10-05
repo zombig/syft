@@ -64,16 +64,15 @@ func CatalogFromScope(s scope.Scope) (*pkg.Catalog, error) {
 	log.Info("building the catalog")
 
 	// conditionally have two sets of catalogers
-	var catalogers []cataloger.Cataloger
-	// if image
-	// use one set of catalogers
-	catalogers = ...
+	//var catalogers []cataloger.Cataloger
+	//// if image
+	//// use one set of catalogers
+	//catalogers = ...
+	//
+	//// if dir
+	//// use another set of catalogers
 
-	// if dir
-	// use another set of catalogers
-
-
-	return cataloger.Catalog(s.Resolver, catalogers...)
+	return cataloger.Catalog(s.Resolver, cataloger.All()...)
 }
 
 // SetLogger sets the logger object used for all syft logging calls.
