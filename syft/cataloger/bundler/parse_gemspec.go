@@ -51,13 +51,22 @@ type listProcessor func(string) []string
 var patterns = map[string]*regexp.Regexp{
 	// match example:       name = "railties".freeze   --->   railties
 	"name": regexp.MustCompile(`.*\.name\s*=\s*["']{1}(?P<name>.*)["']{1} *`),
+
 	// match example:       version = "1.0.4".freeze   --->   1.0.4
 	"version": regexp.MustCompile(`.*\.version\s*=\s*["']{1}(?P<version>.*)["']{1} *`),
+
 	// match example:       homepage = "https://github.com/anchore/syft".freeze   --->   https://github.com/anchore/syft
 	"homepage": regexp.MustCompile(`.*\.homepage\s*=\s*["']{1}(?P<homepage>.*)["']{1} *`),
+
 	// match example:       files = ["exe/bundle".freeze, "exe/bundler".freeze]
-	"file": regexp.MustCompile(`.*\.files\s*=\s*["']{1}(?P<homepage>.*)["']{1} *`),
-	// match example:
+	"file": regexp.MustCompile(`.*\.files\s*=\s*["']{1}(?P<files>.*)["']{1} *`),
+
+	// match example:       authors = ["Andr\u00E9 Arko".freeze, "Samuel Giddins".freeze, "Colby Swandale".freeze,
+	//								   "Hiroshi Shibata".freeze, "David Rodr\u00EDguez".freeze, "Grey Baker".freeze]
+	"authors": regexp.MustCompile(`.*\.authors\s*=\s*["']{}(?P<authors>.*)["']{1} *`),
+
+	// match example:	    licenses = ["MIT".freeze]
+	"licenses": regexp.MustCompile(`.*\.licenses\s*=\s*["']{}(?P<licenses>.*)["']{1} *`),
 
 }
 
@@ -68,6 +77,17 @@ var postProcessors = map[string]listProcessor{
 		// ["exe/bundle", "exe/bundler"]
 
 	},
+	"authors": func(s string) []string {
+		// ["exe/bundle".freeze, "exe/bundler".freeze]
+		// ["exe/bundle", "exe/bundler"]
+
+	},
+	"licenses": func(s string) []string {
+		// ["exe/bundle".freeze, "exe/bundler".freeze]
+		// ["exe/bundle", "exe/bundler"]
+
+	},
+
 }
 
 func parseGemSpecEntries(_ string, reader io.Reader) ([]pkg.Package, error) {

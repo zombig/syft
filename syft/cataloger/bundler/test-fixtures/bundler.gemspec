@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
                                                                                                                                                                     
     s.required_rubygems_version = Gem::Requirement.new(">= 2.5.2".freeze) if s.respond_to? :required_rubygems_version=                                              
     s.require_paths = ["lib".freeze]                                                                                                                                
-    s.authors = ["Andr\u00E9 Arko".freeze, "Samuel Giddins".freeze, "Colby Swandale".freeze, "Hiroshi Shibata".freeze, "David Rodr\u00EDguez".freeze, "Grey Baker".f
+    s.authors = ["Andr\u00E9 Arko".freeze, "Samuel Giddins".freeze, "Colby Swandale".freeze, "Hiroshi Shibata".freeze, "David Rodr\u00EDguez".freeze, "Grey Baker".freeze]
     s.bindir = "exe".freeze                                                                                                                                         
     s.date = "2020-01-05"                                                                                                                                           
     s.description = "Bundler manages an application's dependencies through its entire life, across many machines, systematically and repeatably".freeze             
