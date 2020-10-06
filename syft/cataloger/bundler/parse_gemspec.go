@@ -41,7 +41,7 @@ var _ common.ParserFn = parseGemFileLockEntries
 
 // patt = re.match(r".*\.files *= *(.*) *", line)
 // if patt:
-// 	lstr = re.sub(r"^\[|\]$", "", patt.group(1)).split(',')
+// 	lstr = re.sub(r"^\[|\]$", "", patt.group(1)).split(',')         <----- corner case processing (empty list) + split on comma
 // 	for thestr in lstr:
 // 		thestr = re.sub(' *" *', "", thestr)
 // 		rfiles.append(thestr)
@@ -55,14 +55,19 @@ var patterns = map[string]*regexp.Regexp{
 	"version": regexp.MustCompile(`.*\.version\s*=\s*["']{1}(?P<version>.*)["']{1} *`),
 	// match example:       homepage = "https://github.com/anchore/syft".freeze   --->   https://github.com/anchore/syft
 	"homepage": regexp.MustCompile(`.*\.homepage\s*=\s*["']{1}(?P<homepage>.*)["']{1} *`),
-	// TODO: add more fields
+	// match example:       files = ["exe/bundle".freeze, "exe/bundler".freeze]
+	"file": regexp.MustCompile(`.*\.files\s*=\s*["']{1}(?P<homepage>.*)["']{1} *`),
+	// match example:
+
 }
 
 // TODO: use post processors for lists
 var postProcessors = map[string]listProcessor{
-	//"files": func(s string) []string {
-	//
-	//},
+	"files": func(s string) []string {
+		// ["exe/bundle".freeze, "exe/bundler".freeze]
+		// ["exe/bundle", "exe/bundler"]
+
+	},
 }
 
 func parseGemSpecEntries(_ string, reader io.Reader) ([]pkg.Package, error) {
