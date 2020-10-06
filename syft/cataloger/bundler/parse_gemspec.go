@@ -55,39 +55,42 @@ var patterns = map[string]*regexp.Regexp{
 	// match example:       version = "1.0.4".freeze   --->   1.0.4
 	"version": regexp.MustCompile(`.*\.version\s*=\s*["']{1}(?P<version>.*)["']{1} *`),
 
-	// match example:       homepage = "https://github.com/anchore/syft".freeze   --->   https://github.com/anchore/syft
+	// match example:
+	// homepage = "https://github.com/anchore/syft".freeze   --->   https://github.com/anchore/syft
 	"homepage": regexp.MustCompile(`.*\.homepage\s*=\s*["']{1}(?P<homepage>.*)["']{1} *`),
 
-	// match example:       files = ["exe/bundle".freeze, "exe/bundler".freeze]
-	"file": regexp.MustCompile(`.*\.files\s*=\s*["']{1}(?P<files>.*)["']{1} *`),
+	// match example:       files = ["exe/bundle".freeze, "exe/bundler".freeze]    --->    "exe/bundle".freeze, "exe/bundler".freeze
+	"files": regexp.MustCompile(`.*\.files\s*=\s*\[(?P<files>.*)\] *`),
 
-	// match example:       authors = ["Andr\u00E9 Arko".freeze, "Samuel Giddins".freeze, "Colby Swandale".freeze,
-	//								   "Hiroshi Shibata".freeze, "David Rodr\u00EDguez".freeze, "Grey Baker".freeze]
-	"authors": regexp.MustCompile(`.*\.authors\s*=\s*["']{}(?P<authors>.*)["']{1} *`),
+	// // match example:       authors = ["Andr\u00E9 Arko".freeze, "Samuel Giddins".freeze, "Colby Swandale".freeze,
+	// //								   "Hiroshi Shibata".freeze, "David Rodr\u00EDguez".freeze, "Grey Baker".freeze]
+	// "authors": regexp.MustCompile(`.*\.authors\s*=\s*\[(?P<authors>.*)\] *`),
 
-	// match example:	    licenses = ["MIT".freeze]
-	"licenses": regexp.MustCompile(`.*\.licenses\s*=\s*["']{}(?P<licenses>.*)["']{1} *`),
-
+	// // match example:	    licenses = ["MIT".freeze]
+	// "licenses": regexp.MustCompile(`.*\.authors\s*=\s*\[(?P<authors>.*)\] *`),
 }
 
 // TODO: use post processors for lists
 var postProcessors = map[string]listProcessor{
 	"files": func(s string) []string {
-		// ["exe/bundle".freeze, "exe/bundler".freeze]
-		// ["exe/bundle", "exe/bundler"]
-
+		// '"exe/bundle", "exe/bundler"'
+		var results []string
+		// ['"exe/bundle"', '"exe/bundler"']
+		for _, item := range strings.Split(s, ",") {
+			results = append(results, strings.Trim(item, "\" "))
+		}
+		return results
 	},
-	"authors": func(s string) []string {
-		// ["exe/bundle".freeze, "exe/bundler".freeze]
-		// ["exe/bundle", "exe/bundler"]
+	// "authors": func(s string) []string {
+	// 	// ["exe/bundle".freeze, "exe/bundler".freeze]
+	// 	// ["exe/bundle", "exe/bundler"]
 
-	},
-	"licenses": func(s string) []string {
-		// ["exe/bundle".freeze, "exe/bundler".freeze]
-		// ["exe/bundle", "exe/bundler"]
+	// },
+	// "licenses": func(s string) []string {
+	// 	// ["exe/bundle".freeze, "exe/bundler".freeze]
+	// 	// ["exe/bundle", "exe/bundler"]
 
-	},
-
+	// },
 }
 
 func parseGemSpecEntries(_ string, reader io.Reader) ([]pkg.Package, error) {
@@ -100,6 +103,7 @@ func parseGemSpecEntries(_ string, reader io.Reader) ([]pkg.Package, error) {
 
 		// TODO: sanitize unicode? (see engine code)
 		sanitizedLine := strings.TrimSpace(line)
+		sanitizedLine = strings.ReplaceAll(sanitizedLine, ".freeze", "")
 
 		if sanitizedLine == "" {
 			continue
