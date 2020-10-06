@@ -46,7 +46,7 @@ var _ common.ParserFn = parseGemfileLockEntries
 // 		thestr = re.sub(' *" *', "", thestr)
 // 		rfiles.append(thestr)
 
-type fieldProcessor func(string) string
+type listProcessor func(string) []string
 
 var patterns = map[string]*regexp.Regexp{
 	// match example:       name = "railties".freeze   --->   railties
@@ -55,14 +55,19 @@ var patterns = map[string]*regexp.Regexp{
 	"version": regexp.MustCompile(`.*\.version\s*=\s*["']{1}(?P<version>.*)["']{1} *`),
 	// match example:       homepage = "https://github.com/anchore/syft".freeze   --->   https://github.com/anchore/syft
 	"homepage": regexp.MustCompile(`.*\.homepage\s*=\s*["']{1}(?P<homepage>.*)["']{1} *`),
+	// TODO: add more fields
 }
 
 // TODO: use post processors for lists
-var postProcessors = map[string]fieldProcessor{}
+var postProcessors = map[string]listProcessor{
+	//"files": func(s string) []string {
+	//
+	//},
+}
 
 func parseGemspecEntries(_ string, reader io.Reader) ([]pkg.Package, error) {
 	var pkgs []pkg.Package
-	var fields = make(map[string]string)
+	var fields = make(map[string]interface{})
 	scanner := bufio.NewScanner(reader)
 
 	for scanner.Scan() {
@@ -83,6 +88,8 @@ func parseGemspecEntries(_ string, reader io.Reader) ([]pkg.Package, error) {
 				} else {
 					fields[field] = value
 				}
+				// TODO: know that a line could actually match on multiple patterns, this is unlikely though
+				break
 			}
 		}
 	}
